@@ -1,0 +1,39 @@
+from flask import jsonify
+from marshmallow import ValidationError
+from ma import ma
+from db import db
+from server.instance import server
+from models.despesa import DespesaModel 
+from models.categoria import CategoriaModel
+
+from controllers.despesa import despesa_ns
+
+api = server.api
+app = server.app
+
+api.add_namespace(despesa_ns)
+# api.add_namespace(categoria_ns)
+
+@app.before_request
+def create_tables():
+    db.create_all()
+
+    if CategoriaModel.query.count() == 0:
+        print("Inserindo categorias padrão...")
+        db.session.add(CategoriaModel(nome="CARTAO DE CREDITO"))
+        db.session.add(CategoriaModel(nome="CARTAO DE DEBITO"))
+        db.session.add(CategoriaModel(nome="INTERNET"))
+        db.session.add(CategoriaModel(nome="ALUGUEL"))
+        db.session.add(CategoriaModel(nome="PIX"))
+        db.session.add(CategoriaModel(nome="MORADIA"))
+        db.session.add(CategoriaModel(nome="LAZER"))
+        db.session.add(CategoriaModel(nome="LUZ"))
+        db.session.commit()
+        print("Categorias padrão inseridas.")
+
+
+
+if __name__ == '__main__':
+    db.init_app(app) 
+    ma.init_app(app) 
+    server.run() 

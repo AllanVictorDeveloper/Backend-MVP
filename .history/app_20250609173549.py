@@ -1,0 +1,31 @@
+from flask import jsonify
+from marshmallow import ValidationError
+from ma import ma
+from db import db
+from server.instance import server
+from models.despesa import despesaModel 
+from models.categoria import categoriaModel
+
+api = server.api
+app = server.app
+
+
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
+    # Exemplo de inserção de dados iniciais (apenas se a tabela estiver vazia)
+    if categoriaModel.query.count() == 0:
+        print("Inserindo categorias padrão...")
+        db.session.add(categoriaModel(nome="Moradia"))
+        db.session.add(categoriaModel(nome="Lazer"))
+        db.session.commit()
+        print("Categorias padrão inseridas.")
+
+# Este bloco só é executado quando o script app.py é rodado diretamente (python app.py)
+# Se você usar 'flask run', o Flask CLI já gerencia isso, mas ter ambos é seguro.
+if __name__ == '__main__':
+    db.init_app(app) 
+    ma.init_app(app) 
+    server.run() 
