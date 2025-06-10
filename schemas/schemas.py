@@ -1,8 +1,10 @@
 # seu_projeto/schemas/schemas.py (Exemplo de conteúdo)
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field, ValidationInfo
 from datetime import date, datetime
 from typing import Optional, List
+
+print("DEBUG: Carregando schemas/schemas.py - Versão 10 de Junho")
 
 # --- Schemas de Despesa (já devem estar aqui) ---
 class DespesaInputSchema(BaseModel):
@@ -12,17 +14,25 @@ class DespesaInputSchema(BaseModel):
     data_vencimento_mensal: date = Field(..., description="Data de vencimento mensal (YYYY-MM-DD)")
     categoria_id: int = Field(..., description="ID da categoria associada")
 
+class CategoriaBasicViewSchema(BaseModel):
+    nome: str
+
+    class Config:
+        from_attributes = True
+
 class DespesaViewSchema(BaseModel):
     id: int
     nome_despesa: str
     valor: float
     data_despesa: Optional[date]
     data_vencimento_mensal: date
-    cadastrado_em: datetime
-    categoria_id: int # É bom incluir o ID da categoria na view de despesa
+    categoria: CategoriaBasicViewSchema
+ 
 
     class Config:
         from_attributes = True
+
+
 
 class ListagemDespesasSchema(BaseModel):
     despesas: List[DespesaViewSchema]
@@ -42,7 +52,6 @@ class CategoriaInputSchema(BaseModel):
 class CategoriaViewSchema(BaseModel):
     id: int
     nome: str
-    cadastrado_em: datetime
 
     class Config:
         from_attributes = True

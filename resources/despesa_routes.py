@@ -3,16 +3,13 @@
 # Remova: from app import app (não precisamos importar app aqui diretamente)
 from flask_openapi3 import Tag
 from http import HTTPStatus
-
-from sqlalchemy.exc import IntegrityError 
-
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 from db import db
 from models.despesa import DespesaModel
 from models.categoria import CategoriaModel
-
 from schemas.schemas import DespesaInputSchema, DespesaViewSchema, ListagemDespesasSchema, ErrorSchema, \
                      DespesaBuscaIdSchema
-
 from typing import List 
 
 despesa_tag = Tag(name="Despesa", description="Operações de despesas")
@@ -68,7 +65,7 @@ def register_despesa_routes(app):
              responses={HTTPStatus.OK: ListagemDespesasSchema, HTTPStatus.NOT_FOUND: ErrorSchema})
     def get_all_despesas():
         app.logger.debug("Coletando todas as despesas.")
-        despesas = DespesaModel.query.all()
+        despesas = DespesaModel.query.options(joinedload(DespesaModel.categoria)).all()
 
         if not despesas:
             return {"despesas": []}, HTTPStatus.OK
@@ -81,7 +78,7 @@ def register_despesa_routes(app):
              responses={HTTPStatus.OK: DespesaViewSchema, HTTPStatus.NOT_FOUND: ErrorSchema})
     def get_despesa_by_id(despesa_id: int):
         app.logger.debug(f"Coletando dados sobre despesa ID: #{despesa_id}")
-        despesa = DespesaModel.query.get(despesa_id)
+        despesa = DespesaModel.query.options(joinedload(DespesaModel.categoria)).get(despesa_id)
 
         if not despesa:
             error_msg = f"Despesa com ID {despesa_id} não encontrada."

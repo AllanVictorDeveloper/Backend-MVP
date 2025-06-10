@@ -17,10 +17,11 @@ from schemas.schemas import CategoriaInputSchema, CategoriaViewSchema, ListagemC
 categoria_tag = Tag(name="Categoria", description="Operações de categorias")
 
 def apresenta_categoria(categoria: CategoriaModel) -> CategoriaViewSchema:
-    return CategoriaViewSchema.model_validate(categoria)
+    return CategoriaViewSchema.model_validate(categoria).model_dump()
+
 
 def apresenta_categorias(categorias: List[CategoriaModel]) -> ListagemCategoriasSchema:
-    return {"categorias": [CategoriaViewSchema.model_validate(c) for c in categorias]}
+    return {"despesas": [CategoriaViewSchema.model_validate(c).model_dump() for c in categorias]}
 
 
 def register_categoria_routes(app):

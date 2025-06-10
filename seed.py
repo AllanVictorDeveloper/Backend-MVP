@@ -32,7 +32,7 @@ def seed_categories(app_instance, db_instance): # Recebe app e db como argumento
                 new_category = CategoriaModel(nome=category_name)
                 db_instance.session.add(new_category) # Usa a instância de db passada
             else:
-                print(f"- Categoria '{category_name}' já existe. Ignorando.")
+                print()
         
         try:
             db_instance.session.commit() # Usa a instância de db passada
