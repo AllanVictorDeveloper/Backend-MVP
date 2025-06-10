@@ -21,7 +21,7 @@ def apresenta_categoria(categoria: CategoriaModel) -> CategoriaViewSchema:
 
 
 def apresenta_categorias(categorias: List[CategoriaModel]) -> ListagemCategoriasSchema:
-    return {"despesas": [CategoriaViewSchema.model_validate(c).model_dump() for c in categorias]}
+    return {"categorias": [CategoriaViewSchema.model_validate(c).model_dump() for c in categorias]}
 
 
 def register_categoria_routes(app):

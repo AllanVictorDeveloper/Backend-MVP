@@ -24,7 +24,7 @@ from seed import seed_categories
 
 
 app = create_app()
-CORS(app)
+CORS(app,resources={r"/*": {"origins": "*"}})
 
 
 home_tag = Tag(name="Documentação", description="Seleção de documentação: Swagger, Redoc ou RapiDoc")

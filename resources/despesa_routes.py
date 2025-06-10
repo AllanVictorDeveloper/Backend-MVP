@@ -76,7 +76,7 @@ def register_despesa_routes(app):
 
     @app.get('/despesas/<int:despesa_id>', tags=[despesa_tag],
              responses={HTTPStatus.OK: DespesaViewSchema, HTTPStatus.NOT_FOUND: ErrorSchema})
-    def get_despesa_by_id(despesa_id: int):
+    def get_single_despesa(despesa_id: int):
         app.logger.debug(f"Coletando dados sobre despesa ID: #{despesa_id}")
         despesa = DespesaModel.query.options(joinedload(DespesaModel.categoria)).get(despesa_id)
 
@@ -92,6 +92,7 @@ def register_despesa_routes(app):
     @app.delete('/despesas/<int:despesa_id>', tags=[despesa_tag],
                 responses={HTTPStatus.NO_CONTENT: None, HTTPStatus.NOT_FOUND: ErrorSchema})
     def delete_despesa_by_id(despesa_id: int):
+        app.logger.debug(f"DEBUG: delete_despesa_by_id chamada com despesa_id: {despesa_id}") # <--- AQUI!
         app.logger.debug(f"Deletando despesa ID: #{despesa_id}")
         despesa = DespesaModel.query.get(despesa_id)
 
