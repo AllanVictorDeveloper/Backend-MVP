@@ -32,7 +32,8 @@ class DespesaViewSchema(BaseModel):
     class Config:
         from_attributes = True
 
-
+class DespesaBuscaIdSchema(BaseModel):
+    despesa_id: int = Field(..., description="ID da despesa para deletar")
 
 class ListagemDespesasSchema(BaseModel):
     despesas: List[DespesaViewSchema]
@@ -43,7 +44,7 @@ class ErrorSchema(BaseModel):
 
 # Schema para buscar Despesa por ID (se você o tiver)
 class DespesaBuscaIdSchema(BaseModel):
-    id: int = Field(..., description="ID da despesa")
+    despesa_id: int = Field(..., description="ID da despesa")
 
 # --- ADICIONE OS SCHEMAS DE CATEGORIA AQUI ---
 class CategoriaInputSchema(BaseModel):
