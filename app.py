@@ -61,7 +61,7 @@ def home():
 
 
 # --- ROTAS DE DESPESAS ---
-@app.post('/despesas', tags=[despesa_tag],
+@app.post('/cadastrar_despesas', tags=[despesa_tag],
           responses={
               HTTPStatus.CREATED: DespesaViewSchema,
               HTTPStatus.BAD_REQUEST: ErrorSchema,
@@ -83,7 +83,7 @@ def add_despesa(body: DespesaInputSchema):
         data_vencimento_mensal=body.data_vencimento_mensal,
         categoria_id=body.categoria_id
     )
-
+    current_app.logger.debug(f"Despesa criada: {despesa}")
     try:
         db.session.add(despesa)
         db.session.commit()
@@ -100,7 +100,7 @@ def add_despesa(body: DespesaInputSchema):
         return {"message": error_msg}, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-@app.get('/despesas', tags=[despesa_tag],
+@app.get('/buscar_despesas', tags=[despesa_tag],
          responses={HTTPStatus.OK: ListagemDespesasSchema, HTTPStatus.NOT_FOUND: ErrorSchema})
 def get_all_despesas():
     current_app.logger.debug("Coletando todas as despesas.")

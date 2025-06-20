@@ -9,8 +9,8 @@ class DespesaModel(db.Model):
     id = db.Column("pk_produto", db.Integer, primary_key=True)
     nome_despesa = db.Column(db.String(140), nullable=False)
     valor = db.Column(db.Float, nullable=False)
-    data_despesa = db.Column(db.Date)
-    data_vencimento_mensal = db.Column(db.Date, nullable=False)
+    data_despesa = db.Column(db.Date,  nullable=True)
+    data_vencimento_mensal = db.Column(db.Date, nullable=True)
     cadastrado_em = db.Column(db.DateTime, default=func.now())
 
     
