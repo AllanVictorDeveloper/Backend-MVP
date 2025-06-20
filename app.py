@@ -113,15 +113,14 @@ def get_all_despesas():
         return apresenta_despesas(despesas), HTTPStatus.OK
 
 
-@app.get('/despesas/<int:despesa_id>', tags=[despesa_tag],
+@app.get('/buscar_despesas_por_id', tags=[despesa_tag],
          responses={HTTPStatus.OK: DespesaViewSchema, HTTPStatus.NOT_FOUND: ErrorSchema})
-def get_single_despesa(despesa_id: int):
-    current_app.logger.debug(f"Coletando dados sobre despesa ID: #{despesa_id}")
-    despesa = DespesaModel.query.options(joinedload(DespesaModel.categoria)).get(despesa_id)
+def get_single_despesa(body: DespesaBuscaIdSchema):
+    despesa = DespesaModel.query.options(joinedload(DespesaModel.categoria)).get(body.despesa_id)
 
     if not despesa:
-        error_msg = f"Despesa com ID {despesa_id} não encontrada."
-        current_app.logger.warning(f"Erro ao buscar despesa '{despesa_id}', {error_msg}")
+        error_msg = f"Despesa com ID {body.despesa_id} não encontrada."
+        current_app.logger.warning(f"Erro ao buscar despesa '{body.despesa_id}', {error_msg}")
         return {"message": error_msg}, HTTPStatus.NOT_FOUND
     else:
         current_app.logger.debug(f"Despesa encontrada: '{despesa.nome_despesa}'")
@@ -152,7 +151,7 @@ def delete_despesa_by_id(body: DespesaBuscaIdSchema):
 
 
 # --- ROTAS DE CATEGORIAS ---
-@app.post('/categorias', tags=[categoria_tag],
+@app.post('/cadastrar_categoria', tags=[categoria_tag],
           responses={
               HTTPStatus.CREATED: CategoriaViewSchema,
               HTTPStatus.BAD_REQUEST: ErrorSchema,
@@ -176,10 +175,9 @@ def add_categoria(body: CategoriaInputSchema):
         current_app.logger.error(f"Erro inesperado ao adicionar categoria: {e}", exc_info=True)
         return {"message": error_msg}, HTTPStatus.INTERNAL_SERVER_ERROR
 
-@app.get('/categorias', tags=[categoria_tag],
+@app.get('/buscar_categorias', tags=[categoria_tag],
          responses={HTTPStatus.OK: ListagemCategoriasSchema})
 def get_all_categorias():
-    current_app.logger.debug("Coletando todas as categorias.")
     categorias = CategoriaModel.query.all()
     current_app.logger.debug(f"{len(categorias)} categorias encontradas.")
     return apresenta_categorias(categorias), HTTPStatus.OK
