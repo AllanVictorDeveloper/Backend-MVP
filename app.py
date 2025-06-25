@@ -10,7 +10,7 @@ from db import db
 from models.despesa import DespesaModel
 from models.categoria import CategoriaModel
 from schemas.schemas import DespesaBuscaIdSchema, DespesaInputSchema, DespesaViewSchema, ListagemDespesasSchema, ErrorSchema, \
-                        CategoriaInputSchema, CategoriaViewSchema, ListagemCategoriasSchema
+                        CategoriaInputSchema, CategoriaViewSchema, ListagemCategoriasSchema, DespesaAtualizarInputSchema
 
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -90,7 +90,8 @@ def add_despesa(body: DespesaInputSchema):
         current_app.logger.debug(f"Adicionada despesa: '{despesa.nome_despesa}'")
         return apresenta_despesa(despesa), HTTPStatus.CREATED
     except IntegrityError as e:
-        error_msg = "Já existe uma despesa com este nome."
+        error_msg = e.orig.args[0] if e.orig else "Erro de integridade ao adicionar despesa."
+        db.session.rollback()  
         current_app.logger.warning(f"Erro ao adicionar despesa '{despesa.nome_despesa}', {error_msg}")
         return {"message": error_msg}, HTTPStatus.CONFLICT
     except Exception as e:
@@ -98,6 +99,53 @@ def add_despesa(body: DespesaInputSchema):
         error_msg = f"Não foi possível salvar a nova despesa: {e}"
         current_app.logger.error(f"Erro inesperado ao adicionar despesa: {e}", exc_info=True)
         return {"message": error_msg}, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@app.put('/atualizar_despesa', tags=[despesa_tag],
+          responses={
+              HTTPStatus.OK: DespesaViewSchema,
+              HTTPStatus.BAD_REQUEST: ErrorSchema,
+              HTTPStatus.CONFLICT: ErrorSchema,
+              HTTPStatus.INTERNAL_SERVER_ERROR: ErrorSchema
+          })
+def update_despesa(body: DespesaAtualizarInputSchema):
+    current_app.logger.debug(f"Iniciando atualização para despesa ID: {body.despesa_id} com dados: {body}")
+
+    # 1. Buscar a despesa existente
+    despesa = DespesaModel.query.options(joinedload(DespesaModel.categoria)).get(body.despesa_id)
+
+    if not despesa:
+        error_msg = f"Despesa com ID {body.despesa_id} não encontrada para atualizar."
+        current_app.logger.warning(error_msg)
+        return {"message": error_msg}, HTTPStatus.NOT_FOUND
+
+    if body.categoria_id and not CategoriaModel.query.get(body.categoria_id):
+        error_msg = f"Categoria com ID {body.categoria_id} não existe."
+        current_app.logger.warning(f"Erro ao atualizar despesa '{body.despesa_id}', {error_msg}")
+        return {"message": error_msg}, HTTPStatus.BAD_REQUEST
+
+    try:
+        despesa.nome_despesa = body.nome_despesa
+        despesa.valor = body.valor
+        despesa.data_despesa = body.data_despesa
+        despesa.data_vencimento_mensal = body.data_vencimento_mensal
+        despesa.categoria_id = body.categoria_id
+
+        # 4. Commit as mudanças
+        db.session.commit()
+        current_app.logger.debug(f"Despesa ID {body.despesa_id} atualizada com sucesso.")
+        return apresenta_despesa(despesa), HTTPStatus.OK
+    except IntegrityError as e:
+        db.session.rollback() # Em caso de erro de integridade, reverta
+        error_msg = "Já existe uma despesa com este nome." # Ou nome_despesa deve ser único
+        current_app.logger.warning(f"Erro de integridade ao atualizar despesa '{body.despesa_id}': {error_msg}")
+        return {"message": error_msg}, HTTPStatus.CONFLICT
+    except Exception as e:
+        db.session.rollback() # Em caso de qualquer outro erro, reverta
+        error_msg = f"Erro inesperado ao atualizar despesa ID {body.despesa_id}: {e}"
+        current_app.logger.error(error_msg, exc_info=True)
+        return {"message": error_msg}, HTTPStatus.INTERNAL_SERVER_ERROR
+
 
 
 @app.get('/buscar_despesas', tags=[despesa_tag],

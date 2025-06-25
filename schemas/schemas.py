@@ -14,6 +14,14 @@ class DespesaInputSchema(BaseModel):
     data_vencimento_mensal: Optional[date] = Field(None, description="Data de vencimento mensal (YYYY-MM-DD)")
     categoria_id: int = Field(..., description="ID da categoria associada")
 
+class DespesaAtualizarInputSchema(BaseModel):
+    despesa_id: int = Field(..., description="ID da despesa")
+    nome_despesa: str = Field(..., description="Nome da despesa")
+    valor: float = Field(..., description="Valor da despesa")
+    data_despesa: Optional[date] = Field(None, description="Data da despesa (YYYY-MM-DD)")
+    data_vencimento_mensal: Optional[date] = Field(None, description="Data de vencimento mensal (YYYY-MM-DD)")
+    categoria_id: int = Field(..., description="ID da categoria associada")
+
 class CategoriaBasicViewSchema(BaseModel):
     nome: str
 
