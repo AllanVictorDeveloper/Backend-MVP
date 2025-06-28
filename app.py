@@ -199,29 +199,29 @@ def delete_despesa_by_id(body: DespesaBuscaIdSchema):
 
 
 # --- ROTAS DE CATEGORIAS ---
-@app.post('/cadastrar_categoria', tags=[categoria_tag],
-          responses={
-              HTTPStatus.CREATED: CategoriaViewSchema,
-              HTTPStatus.BAD_REQUEST: ErrorSchema,
-              HTTPStatus.CONFLICT: ErrorSchema
-          })
-def add_categoria(body: CategoriaInputSchema):
-    current_app.logger.debug(f"Adicionando categoria: '{body.nome}'")
+# @app.post('/cadastrar_categoria', tags=[categoria_tag],
+#           responses={
+#               HTTPStatus.CREATED: CategoriaViewSchema,
+#               HTTPStatus.BAD_REQUEST: ErrorSchema,
+#               HTTPStatus.CONFLICT: ErrorSchema
+#           })
+# def add_categoria(body: CategoriaInputSchema):
+#     current_app.logger.debug(f"Adicionando categoria: '{body.nome}'")
 
-    nova_categoria = CategoriaModel(nome=body.nome)
-    try:
-        db.session.add(nova_categoria)
-        db.session.commit()
-        current_app.logger.debug(f"Adicionada categoria: '{nova_categoria.nome}'")
-        return apresenta_categoria(nova_categoria), HTTPStatus.CREATED
-    except IntegrityError as e:
-        error_msg = "Categoria com este nome já existe."
-        current_app.logger.warning(f"Erro ao adicionar categoria '{nova_categoria.nome}', {error_msg}")
-        return {"message": error_msg}, HTTPStatus.CONFLICT
-    except Exception as e:
-        error_msg = f"Não foi possível salvar a nova categoria: {e}"
-        current_app.logger.error(f"Erro inesperado ao adicionar categoria: {e}", exc_info=True)
-        return {"message": error_msg}, HTTPStatus.INTERNAL_SERVER_ERROR
+#     nova_categoria = CategoriaModel(nome=body.nome)
+#     try:
+#         db.session.add(nova_categoria)
+#         db.session.commit()
+#         current_app.logger.debug(f"Adicionada categoria: '{nova_categoria.nome}'")
+#         return apresenta_categoria(nova_categoria), HTTPStatus.CREATED
+#     except IntegrityError as e:
+#         error_msg = "Categoria com este nome já existe."
+#         current_app.logger.warning(f"Erro ao adicionar categoria '{nova_categoria.nome}', {error_msg}")
+#         return {"message": error_msg}, HTTPStatus.CONFLICT
+#     except Exception as e:
+#         error_msg = f"Não foi possível salvar a nova categoria: {e}"
+#         current_app.logger.error(f"Erro inesperado ao adicionar categoria: {e}", exc_info=True)
+#         return {"message": error_msg}, HTTPStatus.INTERNAL_SERVER_ERROR
 
 @app.get('/buscar_categorias', tags=[categoria_tag],
          responses={HTTPStatus.OK: ListagemCategoriasSchema})
